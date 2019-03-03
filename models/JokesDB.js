@@ -30,34 +30,39 @@ class JokesDB {
       );
 
       // gets exisiting JokeData
-      const existingResult = [];
+      const existingJokesWithVotes = [];
       for (let jokeObj of existingJokes) {
         const jokeData = await JokesDB.getJokeData(jokeObj.id);
-        existingResult.push(jokeData);
+        existingJokesWithVotes.push(jokeData);
       }
 
-      // adds new JokeData
-      // create insert substring and protected values for multi-row insert
-      const newJokeData = newJokes.reduce(
-        (acc, jokeObj) => {
-          acc.jokeRowsData.push(jokeObj.id, jokeObj.joke, 0);
-          acc.valuesArray.push(
-            `($${++acc.count}, $${++acc.count}, $${++acc.count})`
-          );
-          return acc;
-        },
-        { valuesArray: [], jokeRowsData: [], count: 0 }
-      );
+      // makes sure there are new jokes to add, else return o
+      if (newJokes.length > 0) {
+        // adds new JokeData
+        // create insert substring and protected values for multi-row insert
+        const newJokeDataList = newJokes.reduce(
+          (acc, jokeObj) => {
+            acc.jokeRowsData.push(jokeObj.id, jokeObj.joke, 0);
+            acc.valuesArray.push(
+              `($${++acc.count}, $${++acc.count}, $${++acc.count})`
+            );
+            return acc;
+          },
+          { valuesArray: [], jokeRowsData: [], count: 0 }
+        );
 
-      const newResult = await db.query(
-        `INSERT INTO jokes (id, joketext, votes) VALUES ${newJokeData.valuesArray.join(
-          ','
-        )} RETURNING *`,
-        newJokeData.jokeRowsData
-      );
+        const newJokesWithVotes = await db.query(
+          `INSERT INTO jokes (id, joketext, votes) VALUES ${newJokeDataList.valuesArray.join(
+            ','
+          )} RETURNING *`,
+          newJokeDataList.jokeRowsData
+        );
 
-      // returned combined data of existing jokes and newly added jokes
-      return [...existingResult, ...newResult.rows];
+        // returned combined data of existing jokes and newly added jokes
+        return [...existingJokesWithVotes, ...newJokesWithVotes.rows];
+      }
+
+      return existingJokesWithVotes;
     } catch (err) {
       console.log(err);
       console.error('addJokesToDatabase was unable to complete successfully');
