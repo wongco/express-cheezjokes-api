@@ -49,19 +49,7 @@ You will need to have the following items installed in order to run this program
    createdb cheezjokes-test
    ```
 
-3. Use a global install of nodemon or start the program by running server.js
-
-   ```
-   nodemon server.js
-   ```
-
-   or
-
-   ```
-   node server.js
-   ```
-
-4. Install the postgresql schema tables onto your database.
+3. Install the postgresql schema tables onto your database.
 
    - (**Note, any of the steps below will reset and drop your existing tables**)
 
@@ -71,6 +59,18 @@ You will need to have the following items installed in order to run this program
 
    ```
    psql cheezjokes-test < seed.sql
+   ```
+
+4. Use a global install of nodemon or start the program by running server.js
+
+   ```
+   nodemon server.js
+   ```
+
+   or
+
+   ```
+   node server.js
    ```
 
 ## Running Tests
