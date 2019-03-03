@@ -1,8 +1,8 @@
 const db = require('../db');
 
 class JokesDB {
-  // takes list of jokes and adds only new jokes to database
-  static async addJokesToDatabase(apiJokeList) {
+  // helper - splits jokeList into existing jokes and new jokes
+  static async separateJokes(apiJokeList) {
     try {
       // split jokes between new and existing
       const newJokes = [];
@@ -11,9 +11,23 @@ class JokesDB {
         // check if joke is in database
         const isJokeExisting = await JokesDB.isJokeInDatabase(jokeObj.id);
         // if not, then add to newJokes
-        if (isJokeExisting === false) newJokes.push(jokeObj);
-        else existingJokes.push(jokeObj);
+        if (isJokeExisting) existingJokes.push(jokeObj);
+        else newJokes.push(jokeObj);
       }
+      return { newJokes, existingJokes };
+    } catch (err) {
+      console.log(err);
+      console.error('separateJokes was unable to complete successfully');
+      throw new Error('Cannot add information to database');
+    }
+  }
+
+  // takes list of jokes and adds only new jokes to database
+  static async addJokesToDatabase(apiJokeList) {
+    try {
+      const { newJokes, existingJokes } = await JokesDB.separateJokes(
+        apiJokeList
+      );
 
       // gets exisiting JokeData
       const existingResult = [];
@@ -24,21 +38,25 @@ class JokesDB {
 
       // adds new JokeData
       // create insert substring and protected values for multi-row insert
-      let count = 0;
-      const valuesArray = [];
-      const jokeRowsData = newJokes.reduce((acc, jokeObj) => {
-        acc.push(jokeObj.id, jokeObj.joke, 0);
-        valuesArray.push(`($${++count}, $${++count}, $${++count})`);
-        return acc;
-      }, []);
-
-      const newResult = await db.query(
-        `INSERT INTO jokes (id, joketext, votes) VALUES ${valuesArray.join(
-          ','
-        )} RETURNING *`,
-        jokeRowsData
+      const newJokeData = newJokes.reduce(
+        (acc, jokeObj) => {
+          acc.jokeRowsData.push(jokeObj.id, jokeObj.joke, 0);
+          acc.valuesArray.push(
+            `($${++acc.count}, $${++acc.count}, $${++acc.count})`
+          );
+          return acc;
+        },
+        { valuesArray: [], jokeRowsData: [], count: 0 }
       );
 
+      const newResult = await db.query(
+        `INSERT INTO jokes (id, joketext, votes) VALUES ${newJokeData.valuesArray.join(
+          ','
+        )} RETURNING *`,
+        newJokeData.jokeRowsData
+      );
+
+      // returned combined data of existing jokes and newly added jokes
       return [...existingResult, ...newResult.rows];
     } catch (err) {
       console.log(err);
