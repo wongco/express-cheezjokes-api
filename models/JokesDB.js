@@ -1,6 +1,7 @@
 const db = require('../db');
 
 class JokesDB {
+  // takes list of jokes and adds only new jokes to database
   static async addJokesToDatabase(apiJokeList) {
     try {
       // filter only jokes not found in database
@@ -33,6 +34,7 @@ class JokesDB {
     }
   }
 
+  // checks if a specific jokeId exists in the database
   static async isJokeInDatabase(jokeId) {
     try {
       const result = await db.query(`SELECT * FROM jokes WHERE id = $1`, [
@@ -45,6 +47,7 @@ class JokesDB {
     }
   }
 
+  // gets list of 5 most popular jokes in database
   static async getPopularJokes() {
     try {
       const result = await db.query(
@@ -57,6 +60,7 @@ class JokesDB {
     }
   }
 
+  // gets list of 5 least popular jokes in database
   static async getLeastPopularJokes() {
     try {
       const result = await db.query(
@@ -69,6 +73,7 @@ class JokesDB {
     }
   }
 
+  // increments vote count by 1 on specific jokeId in db
   static async increaseJokeVote(jokeId) {
     try {
       const result = await db.query(
@@ -82,6 +87,7 @@ class JokesDB {
     }
   }
 
+  // decrements vote count by 1 on specific jokeId in db
   static async decreaseJokeVote(jokeId) {
     try {
       const result = await db.query(

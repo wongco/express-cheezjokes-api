@@ -4,14 +4,13 @@ const router = new express.Router();
 
 // class models
 const APIError = require('../models/ApiError');
-
 const Jokes = require('../models/Jokes');
 
 /** Base Route: /jokes */
 
 /** GET - /jokes
  * desc: get jokes - random, top (most popular), bottom (least popular)
- * @param {string} type - specifies what type of jokes list to return
+ * @param { string } type - specifies what type of jokes list to return
  */
 router.get('/', async (req, res, next) => {
   const { type } = req.query;
@@ -35,6 +34,7 @@ router.get('/', async (req, res, next) => {
 
 /** PATCH - /jokes/:jokeid/upvote
  * desc: adds one vote to specific joke
+ * @param { string } jokeId - specifies unique jokeId text value
  */
 router.patch('/:jokeId/upvote', async (req, res, next) => {
   try {
@@ -47,10 +47,9 @@ router.patch('/:jokeId/upvote', async (req, res, next) => {
   }
 });
 
-module.exports = router;
-
 /** PATCH - /jokes/:jokeid/downvote
  * desc: deletes one vote from specific joke
+ * @param { string } jokeId - specifies unique jokeId text value
  */
 router.patch('/:jokeId/downvote', async (req, res, next) => {
   try {
@@ -62,3 +61,5 @@ router.patch('/:jokeId/downvote', async (req, res, next) => {
     return next(error);
   }
 });
+
+module.exports = router;
