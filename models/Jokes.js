@@ -17,9 +17,7 @@ class Jokes {
         }
       });
 
-      await JokesDB.addJokesToDatabase(apiResult.data.results);
-
-      return apiResult.data.results;
+      return await JokesDB.addJokesToDatabase(apiResult.data.results);
     } catch (err) {
       console.error('getRandomJokes was unable to complete successfully');
       const error = new Error('Issue getting data from Jokes API');

@@ -4,15 +4,25 @@ class JokesDB {
   // takes list of jokes and adds only new jokes to database
   static async addJokesToDatabase(apiJokeList) {
     try {
-      // filter only jokes not found in database
+      // split jokes between new and existing
       const newJokes = [];
+      const existingJokes = [];
       for (let jokeObj of apiJokeList) {
         // check if joke is in database
         const isJokeExisting = await JokesDB.isJokeInDatabase(jokeObj.id);
         // if not, then add to newJokes
         if (isJokeExisting === false) newJokes.push(jokeObj);
+        else existingJokes.push(jokeObj);
       }
 
+      // gets exisiting JokeData
+      const existingResult = [];
+      for (let jokeObj of existingJokes) {
+        const jokeData = await JokesDB.getJokeData(jokeObj.id);
+        existingResult.push(jokeData);
+      }
+
+      // adds new JokeData
       // create insert substring and protected values for multi-row insert
       let count = 0;
       const valuesArray = [];
@@ -22,15 +32,32 @@ class JokesDB {
         return acc;
       }, []);
 
-      await db.query(
+      const newResult = await db.query(
         `INSERT INTO jokes (id, joketext, votes) VALUES ${valuesArray.join(
           ','
         )} RETURNING *`,
         jokeRowsData
       );
+
+      return [...existingResult, ...newResult.rows];
     } catch (err) {
+      console.log(err);
       console.error('addJokesToDatabase was unable to complete successfully');
       throw new Error('Cannot add information to database');
+    }
+  }
+
+  // gets joke data for specific jokeId in the database
+  static async getJokeData(jokeId) {
+    try {
+      const result = await db.query(`SELECT * FROM jokes WHERE id = $1`, [
+        jokeId
+      ]);
+      return result.rows[0];
+    } catch (err) {
+      console.log(err);
+      console.error('getJokeData was unable to complete successfully');
+      throw new Error('Cannot retrieve information from database');
     }
   }
 
@@ -42,6 +69,7 @@ class JokesDB {
       ]);
       return result.rows.length === 1;
     } catch (err) {
+      console.log(err);
       console.error('isJokeInDatabase was unable to complete successfully');
       throw new Error('Cannot retrieve information from database');
     }
@@ -55,6 +83,7 @@ class JokesDB {
       );
       return result.rows;
     } catch (err) {
+      console.log(err);
       console.error('getPopularJokes was unable to complete successfully');
       throw new Error('Cannot retrieve information from database');
     }
@@ -68,6 +97,7 @@ class JokesDB {
       );
       return result.rows;
     } catch (err) {
+      console.log(err);
       console.error('getLeastPopularJokes was unable to complete successfully');
       throw new Error('Cannot retrieve information from database');
     }
@@ -82,6 +112,7 @@ class JokesDB {
       );
       return result.rows[0];
     } catch (err) {
+      console.log(err);
       console.error('increaseJokeVote was unable to complete successfully');
       throw new Error('Cannot retrieve information from database');
     }
@@ -96,6 +127,7 @@ class JokesDB {
       );
       return result.rows[0];
     } catch (err) {
+      console.log(err);
       console.error('decreaseJokeVote was unable to complete successfully');
       throw new Error('Cannot retrieve information from database');
     }

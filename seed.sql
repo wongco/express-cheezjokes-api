@@ -5,3 +5,5 @@ CREATE TABLE jokes (
   joketext TEXT NOT NULL,
   votes INTEGER NOT NULL DEFAULT 0
 );
+
+CREATE UNIQUE INDEX id_idx ON jokes (id);
