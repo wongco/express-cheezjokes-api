@@ -1,6 +1,7 @@
 /** Express app */
 const express = require('express');
 const app = express();
+const cors = require('cors');
 
 // don't provide http logging during automated tests
 if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'production') {
@@ -11,6 +12,8 @@ if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'production') {
 
 // class models
 const APIError = require('./models/ApiError');
+
+app.use(cors());
 
 // routes
 const jokesRoutes = require('./routes/jokes');
