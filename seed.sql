@@ -1,0 +1,5 @@
+CREATE TABLE jokes (
+  id TEXT PRIMARY KEY,
+  joketext TEXT NOT NULL,
+  votes INTEGER NOT NULL DEFAULT 0
+);

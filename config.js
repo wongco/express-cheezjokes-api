@@ -11,11 +11,15 @@ if (process.env.NODE_ENV === 'test') {
   DB_URI = 'postgresql:///cheezjokes-test';
 }
 
+const JOKES_API = process.env.JOKES_API || 'https://icanhazdadjoke.com';
+const JOKES_TOTAL_PAGES = 27;
 const SECRET_KEY = process.env.SECRET_KEY || 'test-env-secret';
 const PORT = process.env.PORT || 3001;
 
 module.exports = {
   SECRET_KEY,
   DB_URI,
-  PORT
+  PORT,
+  JOKES_API,
+  JOKES_TOTAL_PAGES
 };
